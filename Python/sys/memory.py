@@ -1,4 +1,4 @@
 import sys
 
 a = True
-sys.getsizeof(a)
+print(sys.getsizeof(a))
