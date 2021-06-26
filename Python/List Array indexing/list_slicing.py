@@ -28,3 +28,10 @@ def break_true():
 
 a = break_true()
 print(a)
+
+list_example = [[0, 5], [0, 2], [0, 3], [0, 4], [0, 8], [1, 9], [1, 2]]
+# Find the index of the first occurence of '1' in the first column
+
+first_column_list = [i[0] for i in list_example].index(1)
+# index = first_column_list.filter(lambda i:i==1)
+print('index: ', first_column_list)
