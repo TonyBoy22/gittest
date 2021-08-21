@@ -5,7 +5,9 @@ Date:
 
 
 import numpy as np
+from numpy.lib.function_base import average
 import sympy as sp
+from sympy.matrices import Matrix
 import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse
 import matplotlib.transforms as transforms
@@ -67,13 +69,35 @@ def get_borders(data, averages: tuple):
     b = 2*(inv(cov_2)*m2 - inv(cov_1)*m1)
     c = (transp(m1)*inv(cov_1)*m1 - transp(m2)*inv(cov_2)*m2) + ln(det(cov_2)/det(cov_1))
     '''
-    sym
+    x, y = sp.symbols('x y')
+    C1 = data[0]
+    C2 = data[1]
+    C3 = data[2]
+    
+    # cov and inverse, then Matrix([inv_cov1[], inv_cov2[]])
+    cov1 = np.cov(np.transpose(data[0]))
+    det_1 = np.linalg.det(cov1)
+    inv_cov1 = np.linalg.inv(cov1)
+    
+    cov2 = np.cov(np.transpose(data[1]))
+    det_2 = np.linalg.det(cov2)
+    inv_cov2 = np.linalg.inv(cov2)
+    
+    cov3 = np.cov(np.transpose(data[2]))
+    det_3 = np.linalg.det(cov3)
+    inv_cov3 = np.linalg.inv(cov3)
+    
+    xy = Matrix([x, y])
+    
+    A_12 = inv_cov1 - inv_cov2
+    b = 2*(inv_cov2*averages[1] - inv_cov1*averages[0])
+    c = (np.dot(np.dot(averages[0],inv_cov1),averages[0]) - \
+        np.dot(np.dot(averages[0],inv_cov1),averages[0])) + np.log((det_2)/(det_1))
     borders = []
     # for i in combinations('123', 2):
     #     print(i[0])
     
     # for border 12
-    A = 
         
     return borders
         
