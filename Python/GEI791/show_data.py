@@ -12,6 +12,8 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse
 import matplotlib.transforms as transforms
 from itertools import combinations
+import fractions
+import pprint
 
 
 def confidence_ellipse(data, ax, n_std=3.0, facecolor='none', **kwargs):
@@ -75,31 +77,72 @@ def get_borders(data, averages: tuple):
     C3 = data[2]
     
     # cov and inverse, then Matrix([inv_cov1[], inv_cov2[]])
-    cov1 = np.cov(np.transpose(data[0]))
-    det_1 = np.linalg.det(cov1)
-    inv_cov1 = np.linalg.inv(cov1)
+    cov1 = (np.round(np.cov(np.transpose(data[0])))).astype(int)
+    # print('cov1', cov1)
+    det_1 = np.linalg.det(cov1).as_integer_ratio()
+    det_1 = fractions.Fraction(*det_1).limit_denominator()
     
-    cov2 = np.cov(np.transpose(data[1]))
-    det_2 = np.linalg.det(cov2)
-    inv_cov2 = np.linalg.inv(cov2)
+    cov1 = Matrix(cov1)
+    # print('cov1: ', cov1)
+    inv_cov1 = cov1.inv()
+    # print('inv_cov1', inv_cov1)
     
-    cov3 = np.cov(np.transpose(data[2]))
-    det_3 = np.linalg.det(cov3)
-    inv_cov3 = np.linalg.inv(cov3)
+    cov2 = (np.round(np.cov(np.transpose(data[1])))).astype(int)
+    det_2 = np.linalg.det(cov2).as_integer_ratio()
+    det_2 = fractions.Fraction(*det_2).limit_denominator()
+    cov2 = Matrix(cov2)
+    inv_cov2 = cov2.inv()
     
+    cov3 = (np.round(np.cov(np.transpose(data[2])))).astype(int)
+    det_3 = np.linalg.det(cov3).as_integer_ratio()
+    det_3 = fractions.Fraction(*det_3).limit_denominator()
+    cov3 = Matrix(cov3)
+    inv_cov3 = cov3.inv()
+    
+    # Variables
     xy = Matrix([x, y])
+    av1 = Matrix(np.round(averages[0]).astype(int))
+    av2 = Matrix(np.round(averages[1]).astype(int))
+    av3 = Matrix(np.round(averages[2]).astype(int))
     
     A_12 = inv_cov1 - inv_cov2
-    b = 2*(inv_cov2*averages[1] - inv_cov1*averages[0])
-    c = (np.dot(np.dot(averages[0],inv_cov1),averages[0]) - \
-        np.dot(np.dot(averages[0],inv_cov1),averages[0])) + np.log((det_2)/(det_1))
+    # print('A_12', A_12)
+    b_12 = (2*(inv_cov2*av2 - inv_cov1*av1))
+    # c_12 = (np.dot(np.dot(av1.transpose(),inv_cov1),av1) - \
+    #     np.dot(np.dot(av2.transpose(),inv_cov2),av2)) + np.log((det_2)/(det_1))
+    c_12 = sp.log(sp.Rational(det_2, det_1))
     borders = []
     # for i in combinations('123', 2):
     #     print(i[0])
+    border_12 = xy.transpose()*A_12*xy + b_12.transpose()*xy
+    border_12 = border_12.expand()
     
-    # for border 12
+    sp.init_printing(use_latex=True)
+    # print(f'{border_12[0]} = {-c_12}')
+    sp.pprint(sp.Eq(border_12[0] - c_12))
+       
+    # for border 2-3
+    # A_23 = Matrix(inv_cov2 - inv_cov3)
+    # b_23 = Matrix(2*(inv_cov3*av3 - inv_cov2*av2))
+    # c_23 = (np.dot(np.dot(av2.transpose(),inv_cov2),av2) - \
+    #     np.dot(np.dot(av3.transpose(),inv_cov3),av3))# + np.log((det_3)/(det_2))
         
-    return borders
+    # border_23 = xy.transpose()*A_23*xy + b_23.transpose()*xy + c_23
+    # border_23 = border_23.expand()
+    # print('border expression: ', border_23[0])
+    
+    # # for border 1-3
+    # A_13 = Matrix(inv_cov1 - inv_cov3)
+    # b_13 = Matrix(2*(inv_cov3*av3 - inv_cov1*av1))
+    # c_13 = (np.dot(np.dot(av1.transpose(),inv_cov1),av1) - \
+    #     np.dot(np.dot(av3.transpose(),inv_cov3),av3))+ np.log((det_3)/(det_1))
+        
+    # border_13 = xy.transpose()*A_13*xy + b_13.transpose()*xy + c_13
+    # border_13 = border_13.expand()
+    # print('border expression: ', border_13[0])
+    
+    
+    return None
         
 
 def plot_figures(data, averages):
@@ -164,8 +207,6 @@ averages = (m1, m2, m3)
 
 borders = get_borders(data, averages)
 
-
-# Calcul symbolique
 
 
 

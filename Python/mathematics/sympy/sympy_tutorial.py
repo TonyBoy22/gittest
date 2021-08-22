@@ -3,11 +3,12 @@ Script to evaluate symbolic computation with 2D matrices
 '''
 
 import sympy as sp
+import numpy as np
 from sympy.abc import phi, rho
 from sympy.matrices import Matrix
 
 pi = sp.pi
-print('type and value: ', type(pi), pi)
+# print('type and value: ', type(pi), pi)
 # Does not return a string or a common data type. all Symbols \
     # from sympy are classes that are specific to sympy
     
@@ -51,14 +52,24 @@ border = x + (n + 1) - x - n - y
 # Q: How to make subscript or superscript with symbols?
 
 #################################### Matrices ################################################
-xy = Matrix([x, y])
-print('Matrix xy: ', xy)
+# xy = Matrix([x, y])
+# print('Matrix xy: ', xy)
 
-abcd = Matrix([[1, 2],[7, 8]])
-print('Matrix abcd: ', abcd)
+# abcd = Matrix([[1, 2],[7, 8]])
+# print('Matrix abcd: ', abcd)
 
-mul = xy.transpose()*abcd*xy
-mul = mul.expand()
+# mul = xy.transpose()*abcd*xy
+# mul = mul.expand()
 
-mul 
-print('result: ', mul)
+# mul 
+# print('result: ', mul)
+
+################################## Rational to fractions #####################################
+
+cov1 = Matrix(np.array([[4, 4],[4, 10]]))
+cov2 = Matrix(np.array([[1, 0],[0, 1]]))
+print('cov1, cov2: ', cov1, cov2)
+ic1 = cov1.inv()
+ic2 = cov2.inv()
+
+print(ic1, ic2)
