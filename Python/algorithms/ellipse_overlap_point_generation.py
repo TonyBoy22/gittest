@@ -86,7 +86,10 @@ x,y = random_point_generation(*ellipse_1)
  
 # Check if they are in ellipse 2
 # Apply cartesian equation of ellipse 2 for each dots and filter amount that
-fraction = ((x-ellipse_2[2])*np.cos(ellipse_2[4]) + (y - ellipse_2[3])*np.sin(ellipse_2[4]))**2/ellipse_2[0]**2 + ((x - ellipse_2[2])*np.sin(ellipse_2[4]) - (y - ellipse_2[3])*np.cos(ellipse_2[4]))**2/ellipse_2[1]**2
+fraction = ((x-ellipse_2[2])*np.cos(ellipse_2[4]) + \
+    (y - ellipse_2[3])*np.sin(ellipse_2[4]))**2/ellipse_2[0]**2 + \
+        ((x - ellipse_2[2])*np.sin(ellipse_2[4]) - \
+            (y - ellipse_2[3])*np.cos(ellipse_2[4]))**2/ellipse_2[1]**2
 # gives a result above or below 1
 fraction = np.array(fraction, dtype='int')
 fraction = sum(fraction)/len(fraction)
