@@ -70,6 +70,9 @@ def get_borders(data, averages: tuple):
     A = inv(cov_1) - inv(cov_2)
     b = 2*(inv(cov_2)*m2 - inv(cov_1)*m1)
     c = (transp(m1)*inv(cov_1)*m1 - transp(m2)*inv(cov_2)*m2) + ln(det(cov_2)/det(cov_1))
+
+    For symbolic expressions
+    Cannot compute determinant, but we can substitute it with its expression if we know matrix dimension
     '''
     x, y = sp.symbols('x y')
     C1 = data[0]
@@ -81,16 +84,24 @@ def get_borders(data, averages: tuple):
     # print('cov1', cov1)
     det_1 = np.linalg.det(cov1).as_integer_ratio()
     det_1 = fractions.Fraction(*det_1).limit_denominator()
-    
+
+    # on veut tester si cov1 et cov2 sont des expressions symboliques
+    a, b, c, d = sp.symbols('a b c d') # C1 covariance matrix symbols
+    e, f, g, h = sp.symbols('e f g h') # C2 covariance matrix symbols
+    cov1 = Matrix([[a, b], [c, d]])
     cov1 = Matrix(cov1)
+    det_1 = cov1.det()
     # print('cov1: ', cov1)
     inv_cov1 = cov1.inv()
     # print('inv_cov1', inv_cov1)
     
     cov2 = (np.round(np.cov(np.transpose(data[1])))).astype(int)
+    # cov2 = Matrix([[e, f], [g, h]])
     det_2 = np.linalg.det(cov2).as_integer_ratio()
     det_2 = fractions.Fraction(*det_2).limit_denominator()
     cov2 = Matrix(cov2)
+    cov2 = Matrix([[e, f], [g, h]])
+    det_2 = cov2.det()
     inv_cov2 = cov2.inv()
     
     cov3 = (np.round(np.cov(np.transpose(data[2])))).astype(int)
@@ -110,7 +121,8 @@ def get_borders(data, averages: tuple):
     b_12 = (2*(inv_cov2*av2 - inv_cov1*av1))
     # c_12 = (np.dot(np.dot(av1.transpose(),inv_cov1),av1) - \
     #     np.dot(np.dot(av2.transpose(),inv_cov2),av2)) + np.log((det_2)/(det_1))
-    c_12 = sp.log(sp.Rational(det_2, det_1))
+    # c_12 = sp.log(sp.Rational(det_2, det_1))
+    c_12 = sp.log(det_2, det_1)
     borders = []
     # for i in combinations('123', 2):
     #     print(i[0])
