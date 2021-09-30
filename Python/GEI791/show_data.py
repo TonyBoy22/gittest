@@ -15,6 +15,8 @@ from itertools import combinations
 import fractions
 import pprint
 
+from sklearn.cluster import KMeans
+
 
 def confidence_ellipse(data, ax, n_std=3.0, facecolor='none', **kwargs):
     '''
@@ -57,7 +59,7 @@ def confidence_ellipse(data, ax, n_std=3.0, facecolor='none', **kwargs):
     return ax.add_patch(ellipse)
     
 
-def get_borders(data, averages: tuple):
+def get_borders(data: tuple, averages: tuple):
     '''
     data format: [C1, C2, C3]
     
@@ -74,90 +76,90 @@ def get_borders(data, averages: tuple):
     For symbolic expressions
     Cannot compute determinant, but we can substitute it with its expression if we know matrix dimension
     '''
-    x, y = sp.symbols('x y')
-    C1 = data[0]
-    C2 = data[1]
-    C3 = data[2]
-    
-    # cov and inverse, then Matrix([inv_cov1[], inv_cov2[]])
-    cov1 = (np.round(np.cov(np.transpose(data[0])))).astype(int)
-    # print('cov1', cov1)
-    det_1 = np.linalg.det(cov1).as_integer_ratio()
-    det_1 = fractions.Fraction(*det_1).limit_denominator()
+    # for numerical part
+    # initialize lists
+    A = []
+    B = []
+    C = []
+    cov_list = []
+    det_list = []
+    inv_cov_list = []
+    combination_items = []
+    border_list = []
+    border_coefs = []
 
-    # on veut tester si cov1 et cov2 sont des expressions symboliques
-    a, b, c, d = sp.symbols('a b c d') # C1 covariance matrix symbols
-    e, f, g, h = sp.symbols('e f g h') # C2 covariance matrix symbols
-    cov1 = Matrix([[a, b], [c, d]])
-    cov1 = Matrix(cov1)
-    det_1 = cov1.det()
-    # print('cov1: ', cov1)
-    inv_cov1 = cov1.inv()
-    # print('inv_cov1', inv_cov1)
-    
-    cov2 = (np.round(np.cov(np.transpose(data[1])))).astype(int)
-    # cov2 = Matrix([[e, f], [g, h]])
-    det_2 = np.linalg.det(cov2).as_integer_ratio()
-    det_2 = fractions.Fraction(*det_2).limit_denominator()
-    cov2 = Matrix(cov2)
-    cov2 = Matrix([[e, f], [g, h]])
-    det_2 = cov2.det()
-    inv_cov2 = cov2.inv()
-    
-    cov3 = (np.round(np.cov(np.transpose(data[2])))).astype(int)
-    det_3 = np.linalg.det(cov3).as_integer_ratio()
-    det_3 = fractions.Fraction(*det_3).limit_denominator()
-    cov3 = Matrix(cov3)
-    inv_cov3 = cov3.inv()
-    
-    # Variables
-    xy = Matrix([x, y])
-    av1 = Matrix(np.round(averages[0]).astype(int))
-    av2 = Matrix(np.round(averages[1]).astype(int))
-    av3 = Matrix(np.round(averages[2]).astype(int))
-    
-    A_12 = inv_cov1 - inv_cov2
-    # print('A_12', A_12)
-    b_12 = (2*(inv_cov2*av2 - inv_cov1*av1))
-    # c_12 = (np.dot(np.dot(av1.transpose(),inv_cov1),av1) - \
-    #     np.dot(np.dot(av2.transpose(),inv_cov2),av2)) + np.log((det_2)/(det_1))
-    # c_12 = sp.log(sp.Rational(det_2, det_1))
-    c_12 = sp.log(det_2, det_1)
-    borders = []
-    # for i in combinations('123', 2):
-    #     print(i[0])
-    border_12 = xy.transpose()*A_12*xy + b_12.transpose()*xy
-    border_12 = border_12.expand()
-    
+    for i in range(len(data)):
+        cov = (np.round(np.cov(np.transpose(data[i])))).astype(int)
+        inv_cov = np.linalg.inv(cov)
+        cov_list.append(cov)
+        inv_cov_list.append(inv_cov)
+
+        det = np.linalg.det(cov)# .as_integer_ratio()
+        # det = int(fractions.Fraction(*det).limit_denominator())
+        det_list.append(det)
+
+    for item in combinations(range(len(data)), 2):
+        combination_items.append(item)
+        # print('item: ', item, item[0], item[1])
+        a = np.array(inv_cov_list[item[1]] - inv_cov_list[item[0]])
+        b = np.array([2*(np.dot(inv_cov_list[item[1]], averages[item[1]]) - np.dot(inv_cov_list[item[0]], averages[item[0]]))])
+        # print('b shape: ', b.shape)
+        d = (np.dot(np.dot(averages[item[0]], inv_cov_list[item[0]]), np.transpose(averages[item[0]])) - \
+              np.dot(np.dot(averages[item[1]],inv_cov_list[item[1]]),np.transpose(averages[item[1]])))
+        c = np.log(det_list[item[1]]/det_list[item[0]])
+
+        A.append(a)
+        B.append(b)
+        C.append(c)
+        # print('d: ', d)
+        # print('d: ', d)
+        print('d: ', d)
+        # coef order: [x**2, xy, y**2, x, y]
+        border_coefs.append([a[0,0], a[0,1] + a[1,0], a[1, 1], b[0,0], b[0,1], c, d])
+
+    # for symbolic stuff
     sp.init_printing(use_latex=True)
-    # print(f'{border_12[0]} = {-c_12}')
-    sp.pprint(sp.Eq(border_12[0] - c_12))
-       
-    # for border 2-3
-    # A_23 = Matrix(inv_cov2 - inv_cov3)
-    # b_23 = Matrix(2*(inv_cov3*av3 - inv_cov2*av2))
-    # c_23 = (np.dot(np.dot(av2.transpose(),inv_cov2),av2) - \
-    #     np.dot(np.dot(av3.transpose(),inv_cov3),av3))# + np.log((det_3)/(det_2))
-        
-    # border_23 = xy.transpose()*A_23*xy + b_23.transpose()*xy + c_23
-    # border_23 = border_23.expand()
-    # print('border expression: ', border_23[0])
-    
-    # # for border 1-3
-    # A_13 = Matrix(inv_cov1 - inv_cov3)
-    # b_13 = Matrix(2*(inv_cov3*av3 - inv_cov1*av1))
-    # c_13 = (np.dot(np.dot(av1.transpose(),inv_cov1),av1) - \
-    #     np.dot(np.dot(av3.transpose(),inv_cov3),av3))+ np.log((det_3)/(det_1))
-        
-    # border_13 = xy.transpose()*A_13*xy + b_13.transpose()*xy + c_13
-    # border_13 = border_13.expand()
-    # print('border expression: ', border_13[0])
-    
-    
-    return None
+    x, y = sp.symbols('x y')
+    xy = Matrix([x, y])
+    As = []
+    Bs = []
+    Cs = []
+    avs = []
+    cov_lists = []
+    det_lists = []
+    inv_cov_lists = []
+    sym_borders = []
+    for i in range(len(data)):
+        cov = Matrix(cov_list[i])
+        inv_cov = cov.inv()
+        cov_lists.append(cov)
+        inv_cov_lists.append(inv_cov)
+
+        det = cov.det()
+        det_lists.append(det)
+        avs.append(Matrix(np.round(averages[i]).astype(int)))
+
+    for item in combinations(range(len(data)), 2):
+        print('item: ', item, item[0], item[1])
+        a = inv_cov_lists[item[1]] - inv_cov_lists[item[0]]
+        b = 2*(inv_cov_lists[item[1]]*avs[item[1]] - inv_cov_lists[item[0]]*avs[item[0]])
+        c = sp.log(det_lists[item[1]], det_lists[item[0]])
+        As.append(a)
+        Bs.append(b)
+        Cs.append(c)
+
+        # Display the symbolic expression
+        print(f'border between classes {item[1]} and {item[0]}')
+        # border_12 = xy.transpose()*A_12*xy + b_12.transpose()*xy
+        border = xy.transpose()*a*xy + b.transpose()*xy
+        border = border.expand()
+
+        # # print(f'{border_12[0]} = {-c_12}')
+        # sp.pprint(sp.Eq(border[0] - c))  
+    return border_list, border_coefs
         
 
-def plot_figures(data, averages):
+def plot_figures(data, averages, border_coefs):
     '''
     Plotting figures
     '''
@@ -187,9 +189,9 @@ def plot_figures(data, averages):
     # All data
     fig4, ax4 = plt.subplots(1,1)
 
-    confidence_ellipse(C1, ax4, edgecolor='red')
-    confidence_ellipse(C2, ax4, edgecolor='green')
-    confidence_ellipse(C3, ax4, edgecolor='blue')
+    #confidence_ellipse(C1, ax4, edgecolor='red')
+    #confidence_ellipse(C2, ax4, edgecolor='green')
+    #confidence_ellipse(C3, ax4, edgecolor='blue')
     ax4.set_title('Données 3 classes')
     ax4.scatter(C1[:,0], C1[:,1], c='orange')
     ax4.scatter(C2[:,0], C2[:,1], c='purple')
@@ -198,10 +200,59 @@ def plot_figures(data, averages):
     ax4.scatter(m2[0], m2[1], c='green')
     ax4.scatter(m3[0], m3[1], c='blue')
     ax4.legend('')
+    # Add the borders here
+    x, y = np.meshgrid(np.linspace(-10, 10, 400),
+                       np.linspace(-8, 15, 400))
+    for i in range(len(data)):
+        ax4.contour(x, y,
+                 coefs[i][0] * x ** 2 + coefs[i][2] * y ** 2 - coefs[i][3] * x - coefs[i][6] +\
+                 coefs[i][1]*x * y - coefs[i][4] * y, [-coefs[i][5]])
+
+
 
     plt.show()
     return None 
 
+
+def kmeans_classification(data):
+    '''
+    Take the borders between classes then
+    add it to plotted data points
+    :param data: tuple containing data points
+    :return:
+    '''
+    # convert tuple of data to an array
+    data = list(data)
+    for i in range(len(data)):
+        class_label = np.ones((1000,1))*(i+1)
+        data[i] = np.concatenate((data[i], class_label), axis=1)
+        print('class shape: ', data[i].shape)
+    
+    
+
+
+    data = np.array([*data])
+    print('data shape', data.shape)
+
+    # Flattening array
+    x, y, z = data.shape
+    data_2d = data.reshape(x*y, z)
+
+    # Only euclidean distance in the function
+    # TODO: informer que Euclidian only
+    kmeans_classifier = KMeans(n_clusters=3)
+    kmeans_classifier.fit(data_2d[:,:2])
+    print('clusters: ', kmeans_classifier.cluster_centers_)
+    print('labels: ', kmeans_classifier.labels_)
+
+    # Check if labels are equal to class labels
+    figK, (ax1, ax2) = plt.subplots(2,1)
+    # ax1 reference and ax2 kmeans result
+    ax1.scatter(data_2d[:,0], data_2d[:,1], c=data_2d[:,2], cmap='Greens')
+    ax2.scatter(data_2d[:,0], data_2d[:,1], c=kmeans_classifier.labels_, cmap='Greens')
+    plt.show()
+
+    return None
 
 # Import from text files
 C1 = np.loadtxt('C1.txt')
@@ -215,9 +266,12 @@ m2 = np.average(C2, axis=0)
 m3 = np.average(C3, axis=0)
 averages = (m1, m2, m3)
 
-# plot_figures(data, averages)
+# borders, coefs = get_borders(data, averages)
+# print(borders)
+# plot_figures(data, averages, coefs)
 
-borders = get_borders(data, averages)
+
+kmeans_classification(data)
 
 
 
