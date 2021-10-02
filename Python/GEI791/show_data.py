@@ -111,9 +111,6 @@ def get_borders(data: tuple, averages: tuple):
         A.append(a)
         B.append(b)
         C.append(c)
-        # print('d: ', d)
-        # print('d: ', d)
-        print('d: ', d)
         # coef order: [x**2, xy, y**2, x, y]
         border_coefs.append([a[0,0], a[0,1] + a[1,0], a[1, 1], b[0,0], b[0,1], c, d])
 
@@ -140,7 +137,7 @@ def get_borders(data: tuple, averages: tuple):
         avs.append(Matrix(np.round(averages[i]).astype(int)))
 
     for item in combinations(range(len(data)), 2):
-        print('item: ', item, item[0], item[1])
+        # print('item: ', item, item[0], item[1])
         a = inv_cov_lists[item[1]] - inv_cov_lists[item[0]]
         b = 2*(inv_cov_lists[item[1]]*avs[item[1]] - inv_cov_lists[item[0]]*avs[item[0]])
         c = sp.log(det_lists[item[1]], det_lists[item[0]])
@@ -155,7 +152,7 @@ def get_borders(data: tuple, averages: tuple):
         border = border.expand()
 
         # # print(f'{border_12[0]} = {-c_12}')
-        # sp.pprint(sp.Eq(border[0] - c))  
+        sp.pprint(sp.Eq(border[0] - c))
     return border_list, border_coefs
         
 
@@ -226,13 +223,10 @@ def kmeans_classification(data):
     for i in range(len(data)):
         class_label = np.ones((1000,1))*(i+1)
         data[i] = np.concatenate((data[i], class_label), axis=1)
-        print('class shape: ', data[i].shape)
-    
-    
-
+        # print('class shape: ', data[i].shape)
 
     data = np.array([*data])
-    print('data shape', data.shape)
+    #print('data shape', data.shape)
 
     # Flattening array
     x, y, z = data.shape
@@ -242,14 +236,22 @@ def kmeans_classification(data):
     # TODO: informer que Euclidian only
     kmeans_classifier = KMeans(n_clusters=3)
     kmeans_classifier.fit(data_2d[:,:2])
-    print('clusters: ', kmeans_classifier.cluster_centers_)
-    print('labels: ', kmeans_classifier.labels_)
+    # print('clusters: ', kmeans_classifier.cluster_centers_)
+    # print('labels: ', kmeans_classifier.labels_)
 
     # Check if labels are equal to class labels
     figK, (ax1, ax2) = plt.subplots(2,1)
     # ax1 reference and ax2 kmeans result
-    ax1.scatter(data_2d[:,0], data_2d[:,1], c=data_2d[:,2], cmap='Greens')
-    ax2.scatter(data_2d[:,0], data_2d[:,1], c=kmeans_classifier.labels_, cmap='Greens')
+    ax1.scatter(data_2d[:,0], data_2d[:,1], c=data_2d[:,2], cmap='viridis')
+    ax2.scatter(data_2d[:,0], data_2d[:,1], c=kmeans_classifier.labels_, cmap='viridis')
+
+    counter = 0
+    for i in range(len(kmeans_classifier.labels_)):
+        if (data_2d[i,2]-1) != kmeans_classifier.labels_[i]:
+            counter += 1
+    good_classification = (data_2d.shape[0]-counter)/data_2d.shape[0]*100
+    print('correctement classé par kmeans: ', good_classification)
+
     plt.show()
 
     return None
@@ -266,9 +268,9 @@ m2 = np.average(C2, axis=0)
 m3 = np.average(C3, axis=0)
 averages = (m1, m2, m3)
 
-# borders, coefs = get_borders(data, averages)
+borders, coefs = get_borders(data, averages)
 # print(borders)
-# plot_figures(data, averages, coefs)
+plot_figures(data, averages, coefs)
 
 
 kmeans_classification(data)

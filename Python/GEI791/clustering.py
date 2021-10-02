@@ -184,13 +184,13 @@ def apply_kmeans_clustering(images, k=5, encoding='RGB', indexes=None):
     return None
 
 
-# index_list = random_image_selector(images, 5)
+index_list = random_image_selector(images, 5)
 # print(index_list)
 
-# images_display(image_list, index_list)
+images_display(image_list, index_list)
 
-# plot_RGB(images, index_list)
+plot_RGB(images, index_list)
 
 # visualize_encodings(images)
 
-apply_kmeans_clustering(images, 6)
+# apply_kmeans_clustering(images, 6)
