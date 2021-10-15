@@ -16,19 +16,20 @@ import fractions
 import pprint
 
 from sklearn.cluster import KMeans
+from sklearn.neighbors import KNeighborsClassifier
 
 
 def confidence_ellipse(data, ax, n_std=3.0, facecolor='none', **kwargs):
     '''
-    Inspiration from matplotlib documentation on 'Plot a confidence ellipse'
+    Inspiration de la documentation de matplotlib 'Plot a confidence ellipse'
     
-    class data format np.array([[],
-                                [],
-                                ...
-                                []]
-    ax: axis object from matplotlib figure
-    n_std: Number of standard deviations for confidence level
-    facecolor and kwargs: Argument for the plotting of Ellipse
+    format données de classe np.array([[],
+                                       [],
+                                       ...
+                                       []]
+    ax: axe des figures matplotlib
+    n_std: Nombre de déviation standard dans la marge de confiance de l'ellipse
+    facecolor and kwargs: Arguments pour la fonction plot de matplotlib
     '''
     cov = np.cov(np.transpose(data))
     pearson = cov[0, 1]/np.sqrt(cov[0, 0] * cov[1, 1])
@@ -61,23 +62,21 @@ def confidence_ellipse(data, ax, n_std=3.0, facecolor='none', **kwargs):
 
 def get_borders(data: tuple, averages: tuple):
     '''
-    data format: [C1, C2, C3]
+    data format: (C1, C2, C3)
     
     averages: (m1, m2, m3)
     
-    steps
-    get inverse of covariance matrices from each class
+    Étapes
+    trouver l'inverse de la covariance de chaque matrice
     use averages to computes coefficients for border formula
+    utiliser les moyennes pour calculer coefficients des frontières
     g(y) = y*A*y + b*y + C where
     A = inv(cov_1) - inv(cov_2)
     b = 2*(inv(cov_2)*m2 - inv(cov_1)*m1)
     c = (transp(m1)*inv(cov_1)*m1 - transp(m2)*inv(cov_2)*m2) + ln(det(cov_2)/det(cov_1))
-
-    For symbolic expressions
-    Cannot compute determinant, but we can substitute it with its expression if we know matrix dimension
     '''
-    # for numerical part
-    # initialize lists
+    # Portion numérique
+    # Initialisation des listes
     A = []
     B = []
     C = []
@@ -94,16 +93,13 @@ def get_borders(data: tuple, averages: tuple):
         cov_list.append(cov)
         inv_cov_list.append(inv_cov)
 
-        det = np.linalg.det(cov)# .as_integer_ratio()
-        # det = int(fractions.Fraction(*det).limit_denominator())
+        det = np.linalg.det(cov)
         det_list.append(det)
 
     for item in combinations(range(len(data)), 2):
         combination_items.append(item)
-        # print('item: ', item, item[0], item[1])
         a = np.array(inv_cov_list[item[1]] - inv_cov_list[item[0]])
         b = np.array([2*(np.dot(inv_cov_list[item[1]], averages[item[1]]) - np.dot(inv_cov_list[item[0]], averages[item[0]]))])
-        # print('b shape: ', b.shape)
         d = (np.dot(np.dot(averages[item[0]], inv_cov_list[item[0]]), np.transpose(averages[item[0]])) - \
               np.dot(np.dot(averages[item[1]],inv_cov_list[item[1]]),np.transpose(averages[item[1]])))
         c = np.log(det_list[item[1]]/det_list[item[0]])
@@ -111,10 +107,10 @@ def get_borders(data: tuple, averages: tuple):
         A.append(a)
         B.append(b)
         C.append(c)
-        # coef order: [x**2, xy, y**2, x, y]
+        # coef order: [x**2, xy, y**2, x, y, cst, cst]
         border_coefs.append([a[0,0], a[0,1] + a[1,0], a[1, 1], b[0,0], b[0,1], c, d])
 
-    # for symbolic stuff
+    # Portion symbolique
     sp.init_printing(use_latex=True)
     x, y = sp.symbols('x y')
     xy = Matrix([x, y])
@@ -137,7 +133,6 @@ def get_borders(data: tuple, averages: tuple):
         avs.append(Matrix(np.round(averages[i]).astype(int)))
 
     for item in combinations(range(len(data)), 2):
-        # print('item: ', item, item[0], item[1])
         a = inv_cov_lists[item[1]] - inv_cov_lists[item[0]]
         b = 2*(inv_cov_lists[item[1]]*avs[item[1]] - inv_cov_lists[item[0]]*avs[item[0]])
         c = sp.log(det_lists[item[1]], det_lists[item[0]])
@@ -145,20 +140,20 @@ def get_borders(data: tuple, averages: tuple):
         Bs.append(b)
         Cs.append(c)
 
-        # Display the symbolic expression
+        # Affichage de la portion symbolique
         print(f'border between classes {item[1]} and {item[0]}')
-        # border_12 = xy.transpose()*A_12*xy + b_12.transpose()*xy
         border = xy.transpose()*a*xy + b.transpose()*xy
         border = border.expand()
 
-        # # print(f'{border_12[0]} = {-c_12}')
+        # Léger bug avec la frontière d'ordre 1, mais les 
+        # coefficients se trouvent dans la variables border_coefs
         sp.pprint(sp.Eq(border[0] - c))
     return border_list, border_coefs
         
 
 def plot_figures(data, averages, border_coefs):
     '''
-    Plotting figures
+    Affichage des figures
     '''
     C1, C2, C3 = data
     m1, m2, m3 = averages
@@ -186,9 +181,12 @@ def plot_figures(data, averages, border_coefs):
     # All data
     fig4, ax4 = plt.subplots(1,1)
 
-    #confidence_ellipse(C1, ax4, edgecolor='red')
-    #confidence_ellipse(C2, ax4, edgecolor='green')
-    #confidence_ellipse(C3, ax4, edgecolor='blue')
+    # Affichage des ellipse de confiance sur la figure totale
+    # 3 lignes à commenter ou décommenter selon ce qu'on veut
+    # confidence_ellipse(C1, ax4, edgecolor='red')
+    # confidence_ellipse(C2, ax4, edgecolor='green')
+    # confidence_ellipse(C3, ax4, edgecolor='blue')
+
     ax4.set_title('Données 3 classes')
     ax4.scatter(C1[:,0], C1[:,1], c='orange')
     ax4.scatter(C2[:,0], C2[:,1], c='purple')
@@ -197,7 +195,8 @@ def plot_figures(data, averages, border_coefs):
     ax4.scatter(m2[0], m2[1], c='green')
     ax4.scatter(m3[0], m3[1], c='blue')
     ax4.legend('')
-    # Add the borders here
+
+    # Ajout des frontières ici
     x, y = np.meshgrid(np.linspace(-10, 10, 400),
                        np.linspace(-8, 15, 400))
     for i in range(len(data)):
@@ -213,45 +212,42 @@ def plot_figures(data, averages, border_coefs):
 
 def kmeans_classification(data):
     '''
-    Take the borders between classes then
-    add it to plotted data points
-    :param data: tuple containing data points
+    Segmente les classes selon la classification Kmeans
+    et compare cette classification avec ce qu'on connait
+    des données à la base
+
+    :param data: tuple des points de données
     :return:
     '''
-    # convert tuple of data to an array
+    # converti tuple en array
     data = list(data)
+
+    # Ajout d'une étiquette de classe
     for i in range(len(data)):
         class_label = np.ones((1000,1))*(i+1)
         data[i] = np.concatenate((data[i], class_label), axis=1)
-        # print('class shape: ', data[i].shape)
 
+    # On met les points des données dans un seul array
     data = np.array([*data])
-    #print('data shape', data.shape)
 
     # Flattening array
     x, y, z = data.shape
     data_2d = data.reshape(x*y, z)
 
-    # Only euclidean distance in the function
-    # TODO: informer que Euclidian only
+    # Juste distance euclidienne pour Kmeans
     kmeans_classifier = KMeans(n_clusters=3)
     kmeans_classifier.fit(data_2d[:,:2])
-    # print('clusters: ', kmeans_classifier.cluster_centers_)
-    # print('labels: ', kmeans_classifier.labels_)
 
-    # Check if labels are equal to class labels
+    # Vérifier la comparaison de la classification vs données réelles
     figK, (ax1, ax2) = plt.subplots(2,1)
-    # ax1 reference and ax2 kmeans result
     ax1.scatter(data_2d[:,0], data_2d[:,1], c=data_2d[:,2], cmap='viridis')
     ax2.scatter(data_2d[:,0], data_2d[:,1], c=kmeans_classifier.labels_, cmap='viridis')
+    ax1.set_title('données réelles')
+    ax2.set_title('classification Kmeans')
 
-    counter = 0
-    for i in range(len(kmeans_classifier.labels_)):
-        if (data_2d[i,2]-1) != kmeans_classifier.labels_[i]:
-            counter += 1
-    good_classification = (data_2d.shape[0]-counter)/data_2d.shape[0]*100
-    print('correctement classé par kmeans: ', good_classification)
 
+
+    plt.tight_layout()
     plt.show()
 
     return None

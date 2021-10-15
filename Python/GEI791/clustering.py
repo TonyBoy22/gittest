@@ -13,75 +13,108 @@ from sklearn.cluster import KMeans
 from PIL import Image
 import cv2
 
-# for reproducibility
+# pour reproductibilité
 # random.seed(0)
 
-# First, let's open a few images
+# D'abord, faire une liste de toutes les images par leur titre
 path = glob.glob(r"C:\Users\antoi\Desktop\Github\gittest\Python\GEI791\baseDeDonneesImages\*.jpg")
 image_folder = r"C:\Users\antoi\Desktop\Github\gittest\Python\GEI791\baseDeDonneesImages"
-
-# Make a list to have a track
 image_list = os.listdir(image_folder)
 
-# List comprehension to filter folder for images only
+# Filtrer pour juste garder les images du dossier
 image_list = [i for i in image_list if '.jpg' in i]
 
-# Séparation à priori des classes?
-# coast_list = [i for i in image_list if 'coast' in i]
-# forest_list = [i for i in image_list if 'forest' in i]
-# street_list = [i for i in image_list if 'street' in i]
-
-print(image_list[0])
-print(len(image_list))
-
+# Créer un array qui contient toutes les images
+# Dimensions [980, 256, 256, 3]
+# Valeurs    [# image, hauteur, largeur, RGB]
 images = np.array([np.array(Image.open(image)) for image in path])
-print(images.shape)
-print(type(images))
 
 
-def plot_RGB(images, indexes=None):
+# def plot_RGB(images, indexes=None):
+#     '''
+#     Function that creates the RGB plot for
+#     selected images
+#     :param images: array containing all images
+#     :param indexes: index for selecting images to
+#     display their RGB profile
+#
+#     :return: None
+#     '''
+#
+#     fig = plt.figure()
+#     ax = fig.add_subplot()
+#
+#     if indexes is not None:
+#         images = images[indexes]
+#     else:
+#         pass
+#
+#
+#     R_average = np.sum(images[:,:,:,0], axis=(1,2))/(256*256)
+#     G_average = np.sum(images[:,:,:,1], axis=(1,2))/(256*256)
+#     B_average = np.sum(images[:,:,:,2], axis=(1,2))/(256*256)
+#     # print(R_average)
+#     # print(G_average)
+#     # print(B_average)
+#     ax.plot(range(np.size(images, 0)), R_average, c='red')
+#     ax.plot(range(np.size(images, 0)), G_average, c='green')
+#     ax.plot(range(np.size(images, 0)), B_average, c='blue')
+#     ax.set_title('image RGB profil')
+#     plt.show()
+#     return None
+
+
+def histogrammes(images, index):
     '''
-    Function that creates the RGB plot for
-    selected images
-    :param images: array containing all images
-    :param indexes: index for selecting images to
-    display their RGB profile
-
-    :return: None
+    Takes images array and an index to pick the
+    appropriate image
+    images format: (number of image, Width, Height, RGB channel)
+    index: int or list of int
     '''
 
     fig = plt.figure()
     ax = fig.add_subplot()
 
-    if indexes is not None:
-        images = images[indexes]
-    else:
-        pass
+    # Number of bins per color
+    n_bins = 256
 
+    # image selection
+    image = images[index, :, :, :]
 
-    R_average = np.sum(images[:,:,:,0], axis=(1,2))/(256*256)
-    G_average = np.sum(images[:,:,:,1], axis=(1,2))/(256*256)
-    B_average = np.sum(images[:,:,:,2], axis=(1,2))/(256*256)
-    # print(R_average)
-    # print(G_average)
-    # print(B_average)
-    ax.plot(range(np.size(images, 0)), R_average, c='red')
-    ax.plot(range(np.size(images, 0)), G_average, c='green')
-    ax.plot(range(np.size(images, 0)), B_average, c='blue')
-    ax.set_title('image RGB profil')
+    # A list per color channel
+    pixel_values = np.zeros((3,256))
+
+    for i in range(images.shape[1]):
+        for j in range(images.shape[2]):
+            pixels = image[i,j,:]
+            pixel_values[0, pixels[0]] += 1
+            pixel_values[1, pixels[1]] += 1
+            pixel_values[2, pixels[2]] += 1
+    print('pixel values: ', pixel_values[0,:])
+    print('sum pixels: ', np.sum(pixel_values[0,:]))
+    # ax.hist(pixel_values[0,:], bins = range(0,n_bins))
+    # ax.hist(pixel_values[0, :], bins=n_bins+1)
+    ax.scatter(range(n_bins), pixel_values[0,:], c='red')
+    ax.scatter(range(n_bins), pixel_values[1,:], c='green')
+    ax.scatter(range(n_bins), pixel_values[2,:], c='blue')
+    ax.set(xlabel='pixels', ylabel='compte par valeur d\'intensité')
+    # ajouter le titre de la photo observée dans le titre de l'histograme
+    image_name = image_list[index]
+    ax.set_title(f'histogramme de {image_name}')
     plt.show()
+
     return None
 
 
 def random_image_selector(image_list, number):
     '''
-    Generates a list of number between 0 and size of folder
-    then displays the image of the corresponding indexes
-    from the image_list
+    Génère une liste d'indexes pour choisir des images au hasard dans la liste
+    image_list: liste de strings de 980 items
+    number: int
     '''
     indexes_list = np.random.randint(low=0, high=np.size(image_list, 0), size=number)
 
-    # Protection against duplicates
+    # Protection contre les doublons
     unique_indexes = np.unique(indexes_list)
     while np.size(unique_indexes) != number:
         size_diff = number - np.size(unique_indexes)
@@ -89,7 +122,7 @@ def random_image_selector(image_list, number):
         new_array = np.append(unique_indexes, extra_indexes)
         unique_indexes = np.unique(new_array)
 
-    # assign unique values to be our indexes list
+    # s'assure que les indexes sont des valeurs uniques
     indexes_list = unique_indexes
     indexes_list = np.sort(indexes_list)
     return indexes_list
@@ -97,70 +130,33 @@ def random_image_selector(image_list, number):
 
 def images_display(image_list, indexes=None):
     '''
-    function to display the images from appropriates indexes
+    fonction pour afficher les images correspondant aux indices
 
-    :param image_list: list of image to display
-    :param indexes: generated indexes
+    :param image_list: liste d'image à montrer
+    :param indexes: indices de la liste d'image
     :return: None
     '''
+    if type(indexes) == int:
+        indexes = [indexes]
+
     if indexes is not None:
         for index in indexes:
             im = Image.open(image_folder + '\\' + image_list[index])
             im.show()
     else:
-        return 'Please specify indexes'
+        return 'veuillez spécifier un indice'
 
 
-def visualize_encodings(images):
+def kmeans_clustering(images, k=5, encoding='RGB', indexes=None):
     '''
-    Displays selected images in 3 encodings
-    RGB -> YUV -> Lab
-
-    :param
-    :return:
-    '''
-    # Test on one image
-    image_rgb = images[0]
-
-    # we know it's RGB at this stage
-    cv2.imshow('RGB', image_rgb)
-    if cv2.waitKey(0) & 0xFF == ord('q'):
-        cv2.destroyAllWindows()
-
-
-    # Inversion of axes because for cv2 RGB -> BGR
-    # image_rgb = cv2.cvtColor(image_rgb, cv2.COLOR_BGR2RGB)
-    # Conversion to YUV
-    image_yuv = cv2.cvtColor(image_rgb, cv2.COLOR_BGR2YCrCb)
-    cv2.imshow('YUV', image_yuv)
-    if cv2.waitKey(0) & 0xFF == ord('q'):
-        cv2.destroyAllWindows()
-
-    # conversion to Lab
-    image_lab = cv2.cvtColor(image_rgb, cv2.COLOR_BGR2LAB)
-    cv2.imshow('Lab', image_lab)
-    if cv2.waitKey(0) & 0xFF == ord('q'):
-        cv2.destroyAllWindows()
-
-    return None
-
-
-def RGB2YUV(images):
-    # test sur une seule image
-
-    return None
-
-
-def apply_kmeans_clustering(images, k=5, encoding='RGB', indexes=None):
-    '''
-    Takes the image and apply kmeans clustering for specified
+    Prend une image et applique le kmeans pour segmenter les images
     :param images:      images array
     :param k:           number of cluster per image
     :param encoding:    format of images
     :param indexes:     indexes to select images
     :return:            None
     '''
-    # Reshaping in 2D array
+    # Reformate en array à 2D
     image = images[0]
     x, y, z = image.shape
     assert z == 3
@@ -179,18 +175,14 @@ def apply_kmeans_clustering(images, k=5, encoding='RGB', indexes=None):
     plt.figure()
     plt.imshow(cluster_centers[cluster_labels].reshape(x, y, z))
     plt.show()
-
-
     return None
+# ============= Script principal ======================== #
+
+# Appeler ici les fonctions
 
 
-index_list = random_image_selector(images, 5)
-# print(index_list)
+images_display(image_list, 6)
 
-images_display(image_list, index_list)
+# kmeans_clustering(images, 6)
 
-plot_RGB(images, index_list)
-
-# visualize_encodings(images)
-
-# apply_kmeans_clustering(images, 6)
+histogrammes(images, 6)
