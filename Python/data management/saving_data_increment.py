@@ -51,6 +51,8 @@ with open(CSV_FILE, 'w', newline='') as file:
 #             print('element: ', element)
 #             print('element type: ', type(element))
 #             print('element length: ', len(element))
+df = pd.DataFrame()
+
 
 df = pd.read_csv('test.csv')
 print(df)
