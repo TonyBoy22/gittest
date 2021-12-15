@@ -16,9 +16,11 @@ in the same way you can unpack a tuple?
 # ======================================
 
 
-example_list = [[1.005, 6.784], [9], [3.87, 6]]
+example_list = [[1.005, 6.784], [9], [], [3.87, 6]]
 # merged_list = [f for i in example_list]
 merged_list = []
-merged_list = [merged_list + i for i in example_list]
+# merged_list = [merged_list + i for i in example_list]
+for lists in example_list:
+    merged_list += lists
 
 print('merged_list: ', merged_list)
