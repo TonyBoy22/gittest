@@ -1,0 +1,16 @@
+{
+  "Version": 1,
+  "ProjectMap": {
+    "f27cb55f-f080-4b17-bae1-9ddb450d1251": {
+      "ProjectGuid": "f27cb55f-f080-4b17-bae1-9ddb450d1251",
+      "DisplayName": "statements",
+      "ColorIndex": 0
+    },
+    "e6b2dd0a-1e94-4c38-9616-3d4aed78eece": {
+      "ProjectGuid": "e6b2dd0a-1e94-4c38-9616-3d4aed78eece",
+      "DisplayName": "Containers",
+      "ColorIndex": 1
+    }
+  },
+  "NextColorIndex": 2
+}
