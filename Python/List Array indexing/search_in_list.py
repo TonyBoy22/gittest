@@ -29,3 +29,9 @@ list_to_search = [[1, 2, 3], [4, 5, 6], [7, 8, 9], [1, 2, 4]]
 index_value = list_to_search.index([1, 2, 3], 1)
 print('index_value: ', index_value)
 
+# ===============================================================================================================
+'''
+FILTERING
+'''
+liste = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+# Let's say we want to filter for 2 and 9
