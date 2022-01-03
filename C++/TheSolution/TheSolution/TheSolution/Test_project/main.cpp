@@ -21,6 +21,9 @@ int main() {
 	/* new sert à allocate un espace sur le heap */
 	*hvalue = 5;
 
+	/* Main demo for mortgage data simulation */
+	
+
 
 	cin.get(); /* return end of file */
 

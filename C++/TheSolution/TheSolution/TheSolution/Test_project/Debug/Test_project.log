@@ -1,3 +1,6 @@
-﻿  main.cpp
-C:\Users\antoi\Documents\GitHub\gittest\C++\TheSolution\TheSolution\TheSolution\Test_project\main.cpp(14,22): error C2440: 'initializing': cannot convert from 'int *' to 'double *'
-C:\Users\antoi\Documents\GitHub\gittest\C++\TheSolution\TheSolution\TheSolution\Test_project\main.cpp(14,14): message : Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or function-style cast
+﻿  binary_tree.cpp
+  main.cpp
+C:\Users\antoi\Desktop\Github\gittest\C++\TheSolution\TheSolution\TheSolution\Test_project\main.cpp(15,6): warning C4101: 'array' : variable locale non référencée
+  struct_sheet.cpp
+  Génération de code en cours...
+  Test_project.vcxproj -> C:\Users\antoi\Desktop\Github\gittest\C++\TheSolution\TheSolution\TheSolution\Debug\Test_project.exe
