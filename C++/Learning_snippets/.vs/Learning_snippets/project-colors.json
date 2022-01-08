@@ -10,7 +10,22 @@
       "ProjectGuid": "e6b2dd0a-1e94-4c38-9616-3d4aed78eece",
       "DisplayName": "Containers",
       "ColorIndex": 1
+    },
+    "9fdd76c3-2392-4549-8c1e-7bb22f0560a9": {
+      "ProjectGuid": "9fdd76c3-2392-4549-8c1e-7bb22f0560a9",
+      "DisplayName": "immutability",
+      "ColorIndex": 2
+    },
+    "6e644542-0f94-4f86-9806-b7d771cca6cc": {
+      "ProjectGuid": "6e644542-0f94-4f86-9806-b7d771cca6cc",
+      "DisplayName": "data_structures",
+      "ColorIndex": 3
+    },
+    "2aa2ce19-a223-4434-91ae-9a149ab3e13a": {
+      "ProjectGuid": "2aa2ce19-a223-4434-91ae-9a149ab3e13a",
+      "DisplayName": "operators",
+      "ColorIndex": 4
     }
   },
-  "NextColorIndex": 2
+  "NextColorIndex": 5
 }
