@@ -1,0 +1,3 @@
+﻿  string_streams.cpp
+C:\Users\antoi\Desktop\Github\gittest\C++\Learning_snippets\input_output\string_streams.cpp(29,19): warning C4267: 'initialisation' : conversion de 'size_t' en 'int', perte possible de données
+  input_output.vcxproj -> C:\Users\antoi\Desktop\Github\gittest\C++\Learning_snippets\x64\Debug\input_output.exe

@@ -7,7 +7,7 @@ Goal is to separate a process on several thread to gain speed
 https://realpython.com/python-concurrency/
 '''
 # Need to measure time of each process
-NUM_PROCESSES = 500
+NUM_PROCESSES = 50
 
 # Without threading
 # time

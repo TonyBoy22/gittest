@@ -70,7 +70,7 @@ x1 = ellipse_1[0]*np.cos(alpha)*np.cos(ellipse_1[4]) - \
 y1 = ellipse_1[0]*np.cos(alpha)*np.sin(ellipse_1[4]) + \
     ellipse_1[1]*np.sin(alpha)*np.cos(ellipse_1[4]) + ellipse_1[3]
     
-plt.scatter(x1,y1, label='ego vehicle pose')
+plt.scatter(x1,y1, label='pose de l\'égo véhicule')
 
 # for 2nd ellipse
 x2 = ellipse_2[0]*np.cos(alpha)*np.cos(ellipse_2[4]) - \
@@ -78,7 +78,7 @@ x2 = ellipse_2[0]*np.cos(alpha)*np.cos(ellipse_2[4]) - \
 y2 = ellipse_2[0]*np.cos(alpha)*np.sin(ellipse_2[4]) + \
     ellipse_2[1]*np.sin(alpha)*np.cos(ellipse_2[4]) + ellipse_2[3]
     
-plt.scatter(x2,y2, label='obstacle pose')
+plt.scatter(x2,y2, label='pose de l\'obstacle')
 
 # Generate dots inside ellipse 1
 x,y = random_point_generation(*ellipse_1)
@@ -98,8 +98,10 @@ fraction = format(fraction, ".2%")
 print('fraction: ', fraction)
 
 plt.scatter(x,y)
-plt.xlabel('x coordinate')
-plt.ylabel('y coordinate')
+# plt.xlabel('x coordinate')
+# plt.ylabel('y coordinate')
+plt.xlabel('coordonnées en x')
+plt.ylabel('coordonnées en y')
 plt.title("ellipse d'incertitude des véhicules")
 plt.text(-4, 3, f"fraction: {fraction}")
 plt.legend()

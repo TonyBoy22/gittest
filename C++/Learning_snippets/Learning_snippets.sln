@@ -15,6 +15,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "interfaces", "interfaces\in
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "operators", "operators\operators.vcxproj", "{2AA2CE19-A223-4434-91AE-9A149AB3E13A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "input_output", "input_output\input_output.vcxproj", "{3E1CA9B7-3466-4D23-A343-8E06BB423DBA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -71,6 +73,14 @@ Global
 		{2AA2CE19-A223-4434-91AE-9A149AB3E13A}.Release|x64.Build.0 = Release|x64
 		{2AA2CE19-A223-4434-91AE-9A149AB3E13A}.Release|x86.ActiveCfg = Release|Win32
 		{2AA2CE19-A223-4434-91AE-9A149AB3E13A}.Release|x86.Build.0 = Release|Win32
+		{3E1CA9B7-3466-4D23-A343-8E06BB423DBA}.Debug|x64.ActiveCfg = Debug|x64
+		{3E1CA9B7-3466-4D23-A343-8E06BB423DBA}.Debug|x64.Build.0 = Debug|x64
+		{3E1CA9B7-3466-4D23-A343-8E06BB423DBA}.Debug|x86.ActiveCfg = Debug|Win32
+		{3E1CA9B7-3466-4D23-A343-8E06BB423DBA}.Debug|x86.Build.0 = Debug|Win32
+		{3E1CA9B7-3466-4D23-A343-8E06BB423DBA}.Release|x64.ActiveCfg = Release|x64
+		{3E1CA9B7-3466-4D23-A343-8E06BB423DBA}.Release|x64.Build.0 = Release|x64
+		{3E1CA9B7-3466-4D23-A343-8E06BB423DBA}.Release|x86.ActiveCfg = Release|Win32
+		{3E1CA9B7-3466-4D23-A343-8E06BB423DBA}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
