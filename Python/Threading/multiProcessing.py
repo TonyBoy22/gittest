@@ -11,8 +11,9 @@ import multiprocessing
 
 # start = time.perf_counter()
 
-def do_something_arg(second):
-    print(f'Sleeping {second} sec...')
+def do_something_arg(second): # with a tuple
+    first, second = second
+    print(f'Sleeping {second} sec, then {first}...')
     time.sleep(second)
     return 'Done Sleeping'
 
@@ -53,7 +54,7 @@ def main():
     start = time.perf_counter()
     ############# With newer multiprocessing class ######################
     with concurrent.futures.ProcessPoolExecutor() as executor:
-        results = [executor.submit(do_something_arg, 1) for _ in range(10)]
+        results = [executor.submit(do_something_arg, (i, i+0.5)) for i in range(3)]
 
         for f in concurrent.futures.as_completed(results):
             print(f.result())
