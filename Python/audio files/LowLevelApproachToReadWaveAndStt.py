@@ -1,4 +1,5 @@
 '''
+To be called main file eventually
 Trying BytesIO and Wave module to read the buffer of a wav file
 based on https://aneescraftsmanship.com/wav-file-format/
 
