@@ -10,7 +10,7 @@ import subprocess
 class Translator(object):
     def __init__(self):
         file_to_convert = None
-        file_name = 
+        file_name = None
         pass
     
     def get_file_format(file_to_convert):
@@ -24,3 +24,8 @@ class Translator(object):
     def translate_file_format(audio_file_to_convert_to_wave):
         
         command = f"ffmpeg -i {} .wav"
+        return None
+        
+    def translate_speech_to_text():
+        
+        
