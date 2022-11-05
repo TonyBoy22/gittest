@@ -1,0 +1,15 @@
+# HMM Folder
+algorithms/HMM/*.pdf
+
+
+
+# Audio file folder
+audio files/_assets
+audio files/198
+audio files/AudioPytorchTests
+
+audio files/ffmpeg.exe
+audio files/*.gz
+audio files/*.pbmm
+audio files/*.scorer
+audio files/*.tflite
