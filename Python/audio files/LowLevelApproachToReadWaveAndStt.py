@@ -13,13 +13,16 @@ import subprocess
 import concurrent.futures # concurrent > multiprocessing since 3.2
 import time
 import deepspeech
+import GPUtil
 
+# https://github.com/anderskm/gputil#usage
+gpu_lists = GPUtil.getGPUs()
 
-# TODO: a class to hold all the header data about the processed file
-
-
-
-
+if gpu_lists:
+    # case where there is a detected compatible gpu
+    print(gpu_lists)
+    
+print(gpu_lists)
 
 model_file_path = 'deepspeech-0.9.3-models.pbmm'
 lm_file_path = 'deepspeech-0.9.3-models.scorer'

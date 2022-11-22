@@ -4,6 +4,8 @@ wrapper autour du modèle DeepSpeech pour ajuster les paramètres
 
 '''
 from deepspeech import Model
+# Faudrait désinstaller deepspeech standard si on fait des tests sur 
+# https://stackoverflow.com/questions/70253197/how-to-use-gpu-when-transcribing-using-deepspeech
 from deepspeech-gpu import Model
 # p-e import os pour etre plus modulaire avec les paths
 
@@ -34,5 +36,3 @@ class CDeepspeechModel(object):
         self.lm_beta = lm_beta
         self.model.setScorerAlphaBeta(self.lm_alpha, self.lm_beta)
         self.setBeamWidth(self.beam_width)
-        
-    def 
