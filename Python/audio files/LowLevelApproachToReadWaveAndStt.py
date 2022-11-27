@@ -62,7 +62,7 @@ def translate_from_tuple(data_in_tuple):
     translated_string = translate_a_segment(start_index, end_index, audio_data)
     return translated_string
 
-def main(wav_file):
+def main_cpu(wav_file):
     assert(os.path.exists(wav_file))
     # assert() sur le type de fichier
     
@@ -105,11 +105,38 @@ def main(wav_file):
     finish = time.perf_counter()
     print(f'Finished in {round(finish - start, 2)} seconds')
     print(results)
+
+def main_gpu(wav_file):
+    assert(os.path.exists(wav_file))
+    # Instanciate waveFile
+    byterate, audio_data = get_wav_bytes(wave_file=wav_file)
+    
+    # Index list
+    bytes_per_segment = byterate*(CHUNK_LENGTH - OVERLAP)/2   # divisé par deux car deux bytes par int16
+    number_of_segment = int(len(audio_data)/bytes_per_segment) + 1
+
+    index_list = np.zeros((number_of_segment, 2), dtype=np.int16)
+    result_list = ['']*number_of_segment
+    start = time.perf_counter()
+    for i in range(number_of_segment):
+        start_index, end_index = get_start_and_end_indexes_per_segment(audio_data, i, byterate)
+        index_list[i][0] = start_index
+        index_list[i][1] = end_index
+            #     # donner les index et le byte stream à la traduction d'un segment
+        translated_string = translate_a_segment(start_index, end_index, audio_data)
+        
+    #     # Annexer les résultats à la liste des résultat 
+        result_list[i] = translated_string
+    
+    finish = time.perf_counter()
+    print(f'Finished in {round(finish - start, 2)} seconds')
+    print(result_list)
     
 
 if __name__ == "__main__":
     audio_file = "./198/wav_file.wav"
-    main(audio_file)
+    # main_cpu(audio_file)
+    main_gpu(audio_file)
 
 
     
